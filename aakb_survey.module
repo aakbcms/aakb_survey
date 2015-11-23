@@ -35,6 +35,7 @@ function aakb_survey_menu() {
     'title' => 'Status',
     'description' => 'Aakb survey status',
     'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -30,
   );
 
 
@@ -45,15 +46,7 @@ function aakb_survey_menu() {
     'page arguments' => array('aakb_survey_admin_template_form'),
     'access arguments' => array('administer aakb survey'),
     'file' => 'includes/aakb_survey.admin.inc',
-  );
-
-  $items['admin/config/people/survey/export'] = array(
-    'title' => 'Export',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_export_form'),
-    'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
+    'weight' => -25,
   );
 
   $items['admin/config/people/survey/landing'] = array(
@@ -63,6 +56,17 @@ function aakb_survey_menu() {
     'page arguments' => array('aakb_survey_admin_landing_form'),
     'access arguments' => array('administer aakb survey'),
     'file' => 'includes/aakb_survey.admin.inc',
+    'weight' => -20,
+  );
+
+  $items['admin/config/people/survey/export'] = array(
+    'title' => 'Export',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aakb_survey_admin_export_form'),
+    'access arguments' => array('administer aakb survey'),
+    'file' => 'includes/aakb_survey.admin.inc',
+    'weight' => -15,
   );
 
   $items['admin/config/people/survey/send'] = array(
@@ -72,7 +76,15 @@ function aakb_survey_menu() {
     'page arguments' => array('aakb_survey_admins_send_form'),
     'access arguments' => array('administer aakb survey'),
     'file' => 'includes/aakb_survey.admin.inc',
+    'weight' => -10,
   );
 
   return $items;
+}
+
+/**
+ * @TODO: Generate hash at import.
+ */
+function _aakb_survey_hash() {
+
 }
