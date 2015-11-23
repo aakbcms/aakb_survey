@@ -1,0 +1,78 @@
+<?php
+/**
+ * @file
+ *
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function aakb_survey_permission() {
+  return array(
+    'administer aakb survey' => array(
+      'title' => t('Administer Aakb survey'),
+      'description' => t('Perform administration tasks.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function aakb_survey_menu() {
+  $items = array();
+
+  $items['admin/config/people/survey'] = array(
+    'title' => 'Aakb survey',
+    'description' => 'Aakb survey configuration',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_admin_status',
+    'access arguments' => array('administer aakb survey'),
+    'file' => 'includes/aakb_survey.admin.inc',
+  );
+
+  $items['admin/config/people/survey/status'] = array(
+    'title' => 'Status',
+    'description' => 'Aakb survey status',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+
+  $items['admin/config/people/survey/template'] = array(
+    'title' => 'Template',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aakb_survey_admin_template_form'),
+    'access arguments' => array('administer aakb survey'),
+    'file' => 'includes/aakb_survey.admin.inc',
+  );
+
+  $items['admin/config/people/survey/export'] = array(
+    'title' => 'Export',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aakb_survey_admin_export_form'),
+    'access arguments' => array('administer aakb survey'),
+    'file' => 'includes/aakb_survey.admin.inc',
+  );
+
+  $items['admin/config/people/survey/landing'] = array(
+    'title' => 'Landing pages',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aakb_survey_admin_landing_form'),
+    'access arguments' => array('administer aakb survey'),
+    'file' => 'includes/aakb_survey.admin.inc',
+  );
+
+  $items['admin/config/people/survey/send'] = array(
+    'title' => 'Send',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aakb_survey_admins_send_form'),
+    'access arguments' => array('administer aakb survey'),
+    'file' => 'includes/aakb_survey.admin.inc',
+  );
+
+  return $items;
+}

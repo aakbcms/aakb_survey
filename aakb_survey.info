@@ -1,0 +1,5 @@
+name = Aakb Survey
+description = Aakb survey user consent management and requests
+core = 7.x
+package = AAKB
+project = aakb_survey
