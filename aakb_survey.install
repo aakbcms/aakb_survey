@@ -27,7 +27,8 @@ function aakb_survey_schema() {
         ),
         'mail' => array(
           'description' => 'Mail address for the user',
-          'type' => 'text',
+          'type' => 'varchar',
+          'length' => 255,
           'not null' => TRUE,
         ),
         'info' => array(
@@ -37,8 +38,10 @@ function aakb_survey_schema() {
         ),
         'hash' => array(
           'description' => 'Unique hash value that links to this user',
-          'type' => 'text',
+          'type' => 'varchar',
+          'length' => 128,
           'not null' => TRUE,
+          'default' => '',
         ),
         'notified' => array(
           'description' => 'Identifies if the user have been sent initial mail',
@@ -62,7 +65,14 @@ function aakb_survey_schema() {
         'uid' => array('uid'),
         'hash' => array('hash'),
       ),
-      'primary key' => array('id'),
+      'primary key' => array('id', 'mail'),
     ),
   );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function aakb_survey_uninstall() {
+  variable_del('aakb_survey_template');
 }

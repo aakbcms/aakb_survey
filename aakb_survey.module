@@ -4,6 +4,8 @@
  *
  */
 
+define('AAKB_SURVEY_NO_CONSENT', 0);
+
 /**
  * Implements hook_permission().
  */
@@ -37,7 +39,6 @@ function aakb_survey_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -30,
   );
-
 
   $items['admin/config/people/survey/template'] = array(
     'title' => 'Template',
