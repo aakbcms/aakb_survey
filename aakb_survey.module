@@ -4,7 +4,10 @@
  *
  */
 
+// Defines the consent bitmap
 define('AAKB_SURVEY_NO_CONSENT', 0);
+define('AAKB_SURVEY_USER_SATISFACTION', 1);
+define('AAKB_SURVEY_NEWSLETTER', 2);
 
 /**
  * Implements hook_permission().
@@ -14,6 +17,10 @@ function aakb_survey_permission() {
     'administer aakb survey' => array(
       'title' => t('Administer Aakb survey'),
       'description' => t('Perform administration tasks.'),
+    ),
+    'export aakb survey' => array(
+      'title' => t('Export Aakb survey'),
+      'description' => t('Export data from collected consent.'),
     ),
   );
 }
@@ -84,8 +91,11 @@ function aakb_survey_menu() {
 }
 
 /**
- * @TODO: Generate hash at import.
+ * Implements hook_views_api().
  */
-function _aakb_survey_hash() {
-
+function aakb_survey_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'aakb_survey') . '/includes',
+  );
 }
