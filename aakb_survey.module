@@ -5,9 +5,9 @@
  */
 
 // Defines the consent bitmap
-define('AAKB_SURVEY_NO_CONSENT', 0);
-define('AAKB_SURVEY_USER_SATISFACTION', 1);
-define('AAKB_SURVEY_NEWSLETTER', 2);
+define('AAKB_SURVEY_NO_CONSENT', 1);
+define('AAKB_SURVEY_USER_SATISFACTION', 2);
+define('AAKB_SURVEY_NEWSLETTER', 4);
 
 /**
  * Implements hook_permission().
@@ -70,8 +70,7 @@ function aakb_survey_menu() {
   $items['admin/config/people/survey/export'] = array(
     'title' => 'Export',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_export_form'),
+    'page callback' => 'aakb_survey_admin_export',
     'access arguments' => array('administer aakb survey'),
     'file' => 'includes/aakb_survey.admin.inc',
     'weight' => -15,
@@ -97,5 +96,51 @@ function aakb_survey_views_api() {
   return array(
     'api' => 3,
     'path' => drupal_get_path('module', 'aakb_survey') . '/includes',
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function aakb_survey_theme($existing, $type, $theme, $path) {
+  return array(
+    'aakb_survey_export' => array(
+      'variables' => array(
+        'types' => NULL,
+        'counts' => NULL,
+        'links' => NULL,
+      ),
+      'template' => 'templates/aakb-survey-export'
+    ),
+  );
+}
+
+/**
+ * Get statistic about a consent type.
+ *
+ * @param int $type
+ *   The consent type to get statistic for.
+ */
+function _aakb_survey_stats($type = AAKB_SURVEY_USER_SATISFACTION) {
+  $query = db_query('SELECT count(*) FROM {aakb_survey} WHERE consent & :type', array(':type' => $type));
+  return $query->fetchField();
+}
+
+/**
+ * Define the different consent types.
+ *
+ * @return array
+ *   The bitmap key as index and assoc. array with information.
+ */
+function _aakb_survey_consent_types() {
+  return array(
+    AAKB_SURVEY_USER_SATISFACTION => array(
+      'title' => t('User satisfaction consent'),
+      'description' => t('Yearly user satisfaction survey from the library.'),
+    ),
+    AAKB_SURVEY_NEWSLETTER => array(
+      'title' => t('User newsletter consent'),
+      'description' => t('Newsletters and survey from the municipality.'),
+    ),
   );
 }

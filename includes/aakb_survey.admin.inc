@@ -109,9 +109,37 @@ function aakb_survey_admin_landing_form() {
   return system_settings_form($form);
 }
 
-function aakb_survey_admin_export_form() {
-  $form = array();
-  return system_settings_form($form);
+function aakb_survey_admin_export() {
+  $types = _aakb_survey_consent_types();
+
+  // Build links render arrays.
+  $formats = array('csv', 'xls');
+  $links = array();
+  foreach ($types as $type => $info) {
+    $links[$type] = array();
+    foreach ($formats as $format) {
+      $links[$type][] = array(
+        '#theme' => 'link',
+        '#text' => t('Download @type file', array('@type' => drupal_strtoupper($format))),
+        '#path' => 'admin/config/people/survey/export/' . $type . '/' . $format,
+        '#options' => array(
+          'attributes' => array('class' => array('button')),
+          'absolute' => TRUE,
+          'html' => TRUE,
+        ),
+      );
+    }
+  }
+
+  return array(
+    '#theme' => 'aakb_survey_export',
+    '#types' => $types,
+    '#counts' => array(
+      AAKB_SURVEY_USER_SATISFACTION => _aakb_survey_stats(AAKB_SURVEY_USER_SATISFACTION),
+      AAKB_SURVEY_NEWSLETTER => _aakb_survey_stats(AAKB_SURVEY_NEWSLETTER),
+    ),
+    '#links' => $links,
+  );
 }
 
 
@@ -119,3 +147,4 @@ function aakb_survey_admins_send_form() {
   $form = array();
   return system_settings_form($form);
 }
+

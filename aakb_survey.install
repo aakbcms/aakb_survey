@@ -58,7 +58,7 @@ function aakb_survey_schema() {
         'consent' => array(
           'description' => 'Bitmap used to flags which consents have the store',
           'type' => 'int',
-          'default' => 0,
+          'default' => 1,
         ),
       ),
       'indexes' => array(
