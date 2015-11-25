@@ -4,6 +4,11 @@
  *
  */
 
+/**
+ * Menu callback that render the status page.
+ *
+ * @return null|string
+ */
 function aakb_survey_admin_status() {
   return t('We need to find something for this page?');
 }
@@ -109,6 +114,12 @@ function aakb_survey_admin_landing_form() {
   return system_settings_form($form);
 }
 
+/**
+ * Menu callback to render the export page.
+ *
+ * @return array
+ *   Render array with page content.
+ */
 function aakb_survey_admin_export() {
   $types = _aakb_survey_consent_types();
 
@@ -142,7 +153,9 @@ function aakb_survey_admin_export() {
   );
 }
 
-
+/**
+ * @TODO: need to figure this one out.
+ */
 function aakb_survey_admins_send_form() {
   $form = array();
   return system_settings_form($form);
