@@ -1,7 +1,8 @@
 <?php
 /**
  * @file
- *
+ * Adds views support som views_data_export module can be used to down files
+ * with the data.
  */
 
 /**

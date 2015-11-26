@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- *
+ * The administrative pages and forms.
  */
 
 /**
