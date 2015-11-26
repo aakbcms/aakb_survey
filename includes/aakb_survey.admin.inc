@@ -158,7 +158,7 @@ function aakb_survey_admin_export() {
 }
 
 /**
- * @TODO: need to figure this one out.
+ * Menu callback to the send mail page.
  */
 function aakb_survey_admins_send() {
   return array(
@@ -175,4 +175,3 @@ function aakb_survey_admins_send() {
     )
   );
 }
-

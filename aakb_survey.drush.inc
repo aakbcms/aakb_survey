@@ -32,8 +32,6 @@ function aakb_survey_drush_command() {
  *   The char used to separate the values.
  */
 function drush_aakb_survey_import($file = 'mails.csv', $delimiter = ',') {
-  require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
-
   // Holds mails that fails (all ready exists).
   $fails = array();
 
@@ -60,7 +58,9 @@ function drush_aakb_survey_import($file = 'mails.csv', $delimiter = ',') {
         $data = array(
           'uid' => $uid,
           'mail' => $data[0],
-          'hash' => substr(user_hash_password($data[0] . $uid), 3),
+          // Randomness is added to hash to ensure that no body can guess it
+          // from knowing another users mail address.
+          'hash' => sha1($data[0] . rand()),
           'notified' => 0,
           'notified_time' => 0,
           'consent' => AAKB_SURVEY_NO_CONSENT,

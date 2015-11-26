@@ -71,6 +71,36 @@ function aakb_survey_menu() {
     'weight' => -20,
   );
 
+  $items['survey/%/consent'] = array(
+    'title' => 'User consent',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
+  $items['survey/%/consent/no'] = array(
+    'title' => 'User consent',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent_no',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
+  $items['survey/%/consent/thanks'] = array(
+    'title' => 'User consent',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent_thanks',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
   return $items;
 }
 
@@ -103,6 +133,14 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
         'show_send' => FALSE,
       ),
       'template' => 'templates/aakb-survey-send',
+    ),
+    'aakb_survey_landing_page' => array(
+      'variables' => array(
+        'login_required' => TRUE,
+        'content' => NULL,
+        'form' => array(),
+      ),
+      'template' => 'templates/aakb-survey-landing-page',
     )
   );
 }
