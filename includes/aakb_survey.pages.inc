@@ -74,11 +74,15 @@ function aakb_survey_user_consent_thanks() {
  * The user consent form to display on the landing page.
  */
 function _aakb_survey_consent_form($form, $form_state, $hash) {
-  $form = array();
+  $form = array(
+    'consents' => array(
+      '#tree' => TRUE,
+    ),
+  );
 
   $types = _aakb_survey_consent_types();
   foreach ($types as $type => $info) {
-    $form['consent'][$type] = array(
+    $form['consents'][$type] = array(
       '#type' => 'checkbox',
       '#title' => $info['title'],
       '#description' => $info['description'],
@@ -110,8 +114,21 @@ function _aakb_survey_consent_form($form, $form_state, $hash) {
  * Handles user consent form selections and redirect to thanks page.
  */
 function _aakb_survey_consent_form_submit($form, $form_state) {
-  // @TODO: Handle selections.$
   $values = $form_state['values'];
+
+  // Reduce the consent selections to a bitmap.
+  $consents = array_keys(array_filter($values['consents']));
+  $consent = array_reduce($consents, function($carry, $item) {
+    return $carry | $item;
+  }, 0);
+
+  // Update the database with the consent.
+  db_update('aakb_survey')
+    ->fields(array(
+      'consent' => $consent,
+    ))
+    ->condition('hash', $values['hash'])
+    ->execute();
 
   // @TODO: Why don't from redirect work?
   drupal_goto('/survey/'. $values['hash'] .'/consent/thanks');
