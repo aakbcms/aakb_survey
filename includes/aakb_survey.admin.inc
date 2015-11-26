@@ -156,8 +156,19 @@ function aakb_survey_admin_export() {
 /**
  * @TODO: need to figure this one out.
  */
-function aakb_survey_admins_send_form() {
-  $form = array();
-  return system_settings_form($form);
+function aakb_survey_admins_send() {
+  return array(
+    '#theme' => 'aakb_survey_send',
+    '#users' =>  _aakb_survey_not_notified_users(),
+    '#show_send' => variable_get('aakb_survey_mails_sent', TRUE),
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'aakb_survey') . '/js/aakb_survey.admin.js',
+      ),
+      'css' => array(
+        drupal_get_path('module', 'aakb_survey') . '/css/aakb_survey.admin.css',
+      ),
+    )
+  );
 }
 

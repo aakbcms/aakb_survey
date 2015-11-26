@@ -79,8 +79,7 @@ function aakb_survey_menu() {
   $items['admin/config/people/survey/send'] = array(
     'title' => 'Send',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admins_send_form'),
+    'page callback' => 'aakb_survey_admins_send',
     'access arguments' => array('administer aakb survey'),
     'file' => 'includes/aakb_survey.admin.inc',
     'weight' => -10,
@@ -112,6 +111,13 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
       ),
       'template' => 'templates/aakb-survey-export'
     ),
+    'aakb_survey_send' => array(
+      'variables' => array(
+        'users' => 0,
+        'show_send' => FALSE,
+      ),
+      'template' => 'templates/aakb-survey-send',
+    )
   );
 }
 
@@ -122,8 +128,23 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
  *   The consent type to get statistic for.
  */
 function _aakb_survey_stats($type = AAKB_SURVEY_USER_SATISFACTION) {
+  // @TODO: Change this to use the query builder.
   $query = db_query('SELECT count(*) FROM {aakb_survey} WHERE consent & :type', array(':type' => $type));
   return $query->fetchField();
+}
+
+/**
+ * Count the number of not notified users in the database.
+ *
+ * @return int
+ *   The number of users.
+ */
+function _aakb_survey_not_notified_users() {
+  $query = db_select('aakb_survey', 's')
+    ->fields('s', array('id'))
+    ->condition('notified', 0, '=');
+
+  return $query->countQuery()->execute()->fetchField();
 }
 
 /**

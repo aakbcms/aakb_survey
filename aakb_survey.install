@@ -75,4 +75,5 @@ function aakb_survey_schema() {
  */
 function aakb_survey_uninstall() {
   variable_del('aakb_survey_template');
+  variable_del('aakb_survey_landing_page');
 }
