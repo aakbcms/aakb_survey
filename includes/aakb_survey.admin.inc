@@ -19,19 +19,18 @@ function aakb_survey_admin_status() {
  * @return array
  *   The generated form.
  */
-function aakb_survey_admin_template_form() {
+function aakb_survey_admin_form() {
   $form = array(
     '#tree' => TRUE,
   );
 
   $default = variable_get('aakb_survey_template', array());
-
   $form['aakb_survey_template'] = array(
     '#type' => 'fieldset',
     '#title' => t('Mail template'),
     '#description' => t('Template used to send the invite mail to all users in the import.'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
 
   $form['aakb_survey_template']['title'] = array(
@@ -59,28 +58,14 @@ function aakb_survey_admin_template_form() {
     '#rows' => 15,
   );
 
-  return system_settings_form($form);
-}
-
-/**
- * Administration form for mail templates.
- *
- * @return array
- *   The generated form.
- */
-function aakb_survey_admin_landing_form() {
-  $form = array(
-    '#tree' => TRUE,
-  );
 
   $default = variable_get('aakb_survey_landing_page', array());
-
   $form['aakb_survey_landing_page'] = array(
     '#type' => 'fieldset',
     '#title' => t('Landing pages'),
     '#description' => t('Templates used to display the different landing pages.'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
 
   $form['aakb_survey_landing_page']['verify'] = array(
@@ -110,6 +95,25 @@ function aakb_survey_admin_landing_form() {
     '#rows' => 15,
   );
 
+  $default = variable_get('aakb_survey_profile', array());
+  $form['aakb_survey_profile'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User profiles'),
+    '#description' => t('Help text on the user profile page.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $types = _aakb_survey_consent_types();
+  foreach ($types as $type => $info) {
+    $form['aakb_survey_profile'][$type] = array(
+      '#type' => 'textfield',
+      '#title' => t($info['title']),
+      '#description' => t($info['description']),
+      '#default_value' => isset($default[$type]) ? $default[$type] : '',
+      '#required' => TRUE,
+    );
+  }
 
   return system_settings_form($form);
 }

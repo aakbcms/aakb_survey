@@ -31,40 +31,24 @@ function aakb_survey_permission() {
 function aakb_survey_menu() {
   $items = array();
 
+  $path = drupal_get_path('module', 'aakb_survey');
+
   $items['admin/config/people/survey'] = array(
     'title' => 'Aakb survey',
     'description' => 'Aakb survey configuration',
     'type' => MENU_NORMAL_ITEM,
-    'page callback' => 'aakb_survey_admin_status',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aakb_survey_admin_form'),
     'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
+    'file' => 'aakb_survey.admin.inc',
+    'file path' => $path . '/includes',
   );
 
-  $items['admin/config/people/survey/status'] = array(
-    'title' => 'Status',
-    'description' => 'Aakb survey status',
+  $items['admin/config/people/survey/config'] = array(
+    'title' => 'Configuration',
+    'description' => 'Aakb survey config',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -30,
-  );
-
-  $items['admin/config/people/survey/template'] = array(
-    'title' => 'Template',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_template_form'),
-    'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
-    'weight' => -25,
-  );
-
-  $items['admin/config/people/survey/landing'] = array(
-    'title' => 'Landing pages',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_landing_form'),
-    'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
-    'weight' => -20,
+    'weight' => -10,
   );
 
   $items['admin/config/people/survey/export'] = array(
@@ -72,7 +56,8 @@ function aakb_survey_menu() {
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'aakb_survey_admin_export',
     'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
+    'file' => 'aakb_survey.admin.inc',
+    'file path' => $path . '/includes',
     'weight' => -15,
   );
 
@@ -81,8 +66,9 @@ function aakb_survey_menu() {
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'aakb_survey_admins_send',
     'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
-    'weight' => -10,
+    'file' => 'aakb_survey.admin.inc',
+    'file path' => $path . '/includes',
+    'weight' => -20,
   );
 
   return $items;
