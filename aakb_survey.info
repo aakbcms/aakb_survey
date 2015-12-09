@@ -5,3 +5,4 @@ package = AAKB
 project = aakb_survey
 dependencies[] = aakb_survey_views
 dependencies[] = views_data_export
+dependencies[] = queue_mail

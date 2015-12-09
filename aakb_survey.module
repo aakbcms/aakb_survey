@@ -71,6 +71,14 @@ function aakb_survey_menu() {
     'weight' => -20,
   );
 
+  $items['admin/config/people/survey/send/now'] = array(
+    'title' => 'Send',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'aakb_survey_send_invitation',
+    'access arguments' => array('administer aakb survey'),
+    'weight' => -25,
+  );
+
   $items['survey/%/consent'] = array(
     'title' => 'User consent',
     'type' => MENU_NORMAL_ITEM,
@@ -146,6 +154,55 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_mail().
+ */
+function aakb_survey_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'invitation':
+      // Load mail templates.
+      $config = variable_get('aakb_survey_template', array());
+
+      // Set headers.
+      $message['headers']['Reply-To'] = $config['reply'];
+
+      // Build body.
+      $link = url('survey/' . $params['hash'] . '/consent', array(
+        'absolute' => TRUE,
+        'https' => TRUE,
+      ));
+      $link = str_replace('http://', 'https://', $link);
+      $body = $config['body'];
+      $body = str_replace("[link]", $link, $body);
+
+      // Set message.
+      $message['to'] = $params['mail'];
+      $message['subject'] = $config['title'];
+      $message['body'][] = $body;
+      break;
+  }
+}
+
+/**
+ * Send the invitation mails menu callback handler.
+ */
+function aakb_survey_send_invitation() {
+  // Load users that have not been notified.
+  $users = _aakb_survey_not_notified_users(FALSE);
+
+  $config = variable_get('aakb_survey_template', array());
+  foreach ($users as $id => $user) {
+    drupal_mail('aakb_survey', 'invitation', $user->mail, LANGUAGE_NONE, array(
+      'id' => $user->id,
+      'uid' => $user->uid,
+      'mail' => $user->mail,
+      'hash' => $user->hash,
+    ), $config['reply']);
+  }
+
+  drupal_json_output(array('test' => 'test1'));
+}
+
+/**
  * Get statistic about a consent type.
  *
  * @param int $type
@@ -160,15 +217,23 @@ function _aakb_survey_stats($type = AAKB_SURVEY_USER_SATISFACTION) {
 /**
  * Count the number of not notified users in the database.
  *
+ * @param bool $count
+ *   Should the count be returned. Default to TRUE.
+ *
  * @return int
  *   The number of users.
  */
-function _aakb_survey_not_notified_users() {
+function _aakb_survey_not_notified_users($count = TRUE) {
   $query = db_select('aakb_survey', 's')
-    ->fields('s', array('id'))
+    ->fields('s', array('id', 'mail', 'hash'))
     ->condition('notified', 0, '=');
 
-  return $query->countQuery()->execute()->fetchField();
+  if ($count) {
+    return $query->countQuery()->execute()->fetchField();
+  }
+  else {
+    return $query->execute()->fetchAllAssoc('id');
+  }
 }
 
 /**

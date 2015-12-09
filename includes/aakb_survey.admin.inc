@@ -58,7 +58,6 @@ function aakb_survey_admin_form() {
     '#rows' => 15,
   );
 
-
   $default = variable_get('aakb_survey_landing_page', array());
   $form['aakb_survey_landing_page'] = array(
     '#type' => 'fieldset',
@@ -81,7 +80,7 @@ function aakb_survey_admin_form() {
     '#type' => 'textarea',
     '#title' => t('Thanks page'),
     '#description' => t('The page thanking for accepting. Tokens available [name]'),
-    '#default_value' => isset($default['body']) ? $default['body'] : '',
+    '#default_value' => isset($default['thanks']) ? $default['thanks'] : '',
     '#required' => TRUE,
     '#rows' => 15,
   );
@@ -90,7 +89,7 @@ function aakb_survey_admin_form() {
     '#type' => 'textarea',
     '#title' => t('No thanks page'),
     '#description' => t('No thanks page.'),
-    '#default_value' => isset($default['body']) ? $default['body'] : '',
+    '#default_value' => isset($default['no_thanks']) ? $default['no_thanks'] : '',
     '#required' => TRUE,
     '#rows' => 15,
   );
