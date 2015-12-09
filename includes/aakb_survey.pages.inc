@@ -36,7 +36,7 @@ function aakb_survey_user_consent($hash) {
 
   return array(
     '#theme' => 'aakb_survey_landing_page',
-    '#content' => isset($content['verify']) ? $content['verify'] : t('Please configure the module Aakb survey first.'),
+    '#content' => isset($content['verify']) ? str_replace("\r", '<br />', $content['verify']) : t('Please configure the module Aakb survey first.'),
     '#login_required' => $login_required,
     '#form' => drupal_get_form('_aakb_survey_consent_form', $hash),
   );
@@ -49,9 +49,11 @@ function aakb_survey_user_consent($hash) {
  *   Render array with page content.
  */
 function aakb_survey_user_consent_no() {
+  $content = variable_get('aakb_survey_landing_page', array());
+
   return array(
     '#theme' => 'aakb_survey_landing_page',
-    '#content' => isset($content['no_thanks']) ? $content['no_thanks'] : t('Please configure the module Aakb survey first.'),
+    '#content' => isset($content['no_thanks']) ? str_replace("\r", '<br />', $content['no_thanks']) : t('Please configure the module Aakb survey first.'),
   );
 }
 
@@ -62,9 +64,11 @@ function aakb_survey_user_consent_no() {
  *   Render array with page content.
  */
 function aakb_survey_user_consent_thanks() {
+  $content = variable_get('aakb_survey_landing_page', array());
+
   return array(
     '#theme' => 'aakb_survey_landing_page',
-    '#content' => isset($content['thanks']) ? $content['thanks'] : t('Please configure the module Aakb survey first.'),
+    '#content' => isset($content['thanks']) ? str_replace("\r", '<br />', $content['thanks']) : t('Please configure the module Aakb survey first.'),
   );
 }
 
