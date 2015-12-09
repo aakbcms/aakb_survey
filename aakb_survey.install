@@ -71,6 +71,18 @@ function aakb_survey_schema() {
 }
 
 /**
+ * Implements hook_install().
+ */
+function aakb_survey_install() {
+  // Set a default configuration for queue mail module.
+  variable_set('queue_mail_keys', 'aakb_survey_invitation');
+  variable_set('queue_mail_queue_time', 5);
+
+  // Set queue mail not to run on cron.
+  variable_set('queue_mail_send_on_cron', 0);
+}
+
+/**
  * Implements hook_uninstall().
  */
 function aakb_survey_uninstall() {
