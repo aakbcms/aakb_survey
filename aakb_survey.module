@@ -89,6 +89,17 @@ function aakb_survey_menu() {
     'file path' => $path . '/includes',
   );
 
+  $items['survey/%/consent/ajax'] = array(
+    'title' => 'User consent ajax',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent_ajax',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'delivery callback' => 'ajax_deliver',
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
   $items['survey/%/consent/no'] = array(
     'title' => 'User consent',
     'type' => MENU_NORMAL_ITEM,
@@ -268,6 +279,23 @@ function _aakb_survey_not_notified_users($count = TRUE) {
   else {
     return $query->execute()->fetchAllAssoc('id');
   }
+}
+
+/**
+ * Get user consent information.
+ *
+ * @param $hash
+ *   The hash for the user.
+ *
+ * @return array
+ *   Consent information (basically the table row).
+ */
+function _aakb_survey_get_user_consent($hash) {
+  return db_select('aakb_survey', 's')
+    ->fields('s', array('uid', 'mail', 'info', 'notified', 'notified_time', 'consent'))
+    ->condition('hash', $hash, '=')
+    ->execute()
+    ->fetchAssoc();
 }
 
 /**

@@ -82,6 +82,14 @@ function _aakb_survey_consent_form($form, $form_state, $hash) {
     'consents' => array(
       '#tree' => TRUE,
     ),
+    '#attributes' => array(
+      'class' => array('aakb-survey-consent-form'),
+    ),
+    '#attached' => array(
+      'css' => array(
+        drupal_get_path('module', 'aakb_survey') . '/css/aakb_survey.css',
+      ),
+    ),
   );
 
   $types = _aakb_survey_consent_types();
@@ -93,15 +101,34 @@ function _aakb_survey_consent_form($form, $form_state, $hash) {
     );
   }
 
+  drupal_add_library('system', 'drupal.ajax');
   $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Yes, submit my selections'),
+    '#theme' => 'link',
+    '#text' => t('Yes, submit my selections'),
+    '#path' => 'survey/' . $hash . '/consent/ajax',
+    '#options' => array(
+      'attributes' => array(
+        'class' => array(
+          'form-submit',
+          'use-ajax',
+        ),
+      ),
+      'html' => FALSE,
+    ),
   );
+
 
   $form['actions']['cancel'] = array(
     '#type' => 'link',
     '#title' => t('No, thanks'),
     '#href' => 'survey/'. $hash .'/consent/no',
+    '#options' => array(
+      'attributes' => array(
+        'class' => array(
+          'form-cancel',
+        ),
+      ),
+    ),
   );
 
   $form['hash'] = array(
@@ -109,31 +136,75 @@ function _aakb_survey_consent_form($form, $form_state, $hash) {
     '#value' => $hash,
   );
 
+  // Check if the logged in user is a library user.
+  $info = _aakb_survey_get_user_consent($hash);
+  if ($info['uid'] > 0) {
+    $user = user_load($info['uid']);
+  }
+  else {
+    global $user;
+  }
+
+  // Below can't use user_is_logged_in() as the user may not be global loaded.
+  if ($user->uid > 0 && ding_user_is_provider_user($user) && !empty($form_state['input'])) {
+    $values = $form_state['input'];
+
+    // Reduce the consent selections to a bitmap.
+    $consent = 0;
+    if (!empty($values['consents'])) {
+      $consents = array_keys($values['consents']);
+      $consent = array_reduce($consents, function ($carry, $item) {
+        return $carry | $item;
+      }, 0);
+    }
+
+    // Update the database with the consent.
+    db_update('aakb_survey')
+      ->fields(array(
+        'uid' => $user->uid,
+        'consent' => $consent,
+      ))
+      ->condition('hash', $hash)
+      ->execute();
+
+    // @TODO: Why don't from redirect work?
+    drupal_goto('/survey/'. $hash .'/consent/thanks');
+  }
+
   return $form;
 }
 
 /**
- * Implements hook_form_submit().
- *
- * Handles user consent form selections and redirect to thanks page.
+ * Consent ajax menu callback.
  */
-function _aakb_survey_consent_form_submit($form, $form_state) {
-  $values = $form_state['values'];
+function aakb_survey_user_consent_ajax($hash) {
+  $commands = array();
 
-  // Reduce the consent selections to a bitmap.
-  $consents = array_keys(array_filter($values['consents']));
-  $consent = array_reduce($consents, function($carry, $item) {
-    return $carry | $item;
-  }, 0);
+  // Check if the logged in user is a library user.
+  global $user;
+  if (!user_is_logged_in()) {
 
-  // Update the database with the consent.
-  db_update('aakb_survey')
-    ->fields(array(
-      'consent' => $consent,
-    ))
-    ->condition('hash', $values['hash'])
-    ->execute();
+    // Check if user information can be store without login. If user don't have
+    // a uid the user needs to login.
+    $info = _aakb_survey_get_user_consent($hash);
+    if (!$info['uid']) {
+      // Trigger log-in (the reservation link will be triggered on success).
+      $commands[] = ajax_command_ding_user_authenticate('');
+    }
+    else {
+      // Submit the consent form.
+      $commands[] = ajax_command_invoke('.aakb-survey-consent-form', 'submit');
+    }
+  }
+  elseif (!ding_user_is_provider_user($user)) {
+    // Error not library user.
+    $commands[] = ajax_command_ding_popup('aakb_survey', t('Error'), '<p>' . t('Only library user can can set survey consents.') . '</p>');
+  }
+  else {
+    // Submit the consent form.
+    $commands[] = ajax_command_invoke('.aakb-survey-consent-form', 'submit');
+  }
 
-  // @TODO: Why don't from redirect work?
-  drupal_goto('/survey/'. $values['hash'] .'/consent/thanks');
+  // Return the ajax commands as an render array.
+  return array('#type' => 'ajax', '#commands' => $commands);
 }
