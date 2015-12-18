@@ -316,3 +316,22 @@ function _aakb_survey_consent_types() {
     ),
   );
 }
+
+/**
+ * Mail send queue callback from drush to ensure database is updated.
+ *
+ * @param string $function
+ *   The queue mail send function to call.
+ * @param array $data
+ *   The data found in the queue mail queue.
+ */
+function _aakb_survey_send_queue_mail($function, $data) {
+  // Send mail.
+  $function($data);
+
+  // Update notification state.
+  db_update('aakb_survey')
+    ->fields(array('notified' => 1, 'notified_time' => time()))
+    ->condition('id', $data['params']['id'], '=')
+    ->execute();
+}

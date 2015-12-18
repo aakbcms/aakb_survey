@@ -128,7 +128,7 @@ function drush_aakb_survey_mail_send() {
 
     $queue = _queue_mail_get_queue();
     while ($item = $queue->claimItem()) {
-      $function($item->data);
+      _aakb_survey_send_queue_mail($function, $item->data);
       $queue->deleteItem($item);
       echo '.';
       sleep($interval);
