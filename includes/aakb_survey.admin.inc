@@ -94,26 +94,6 @@ function aakb_survey_admin_form() {
     '#rows' => 15,
   );
 
-  $default = variable_get('aakb_survey_profile', array());
-  $form['aakb_survey_profile'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('User profiles'),
-    '#description' => t('Help text on the user profile page.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-
-  $types = _aakb_survey_consent_types();
-  foreach ($types as $type => $info) {
-    $form['aakb_survey_profile'][$type] = array(
-      '#type' => 'textfield',
-      '#title' => t($info['title']),
-      '#description' => t($info['description']),
-      '#default_value' => isset($default[$type]) ? $default[$type] : '',
-      '#required' => TRUE,
-    );
-  }
-
   return system_settings_form($form);
 }
 

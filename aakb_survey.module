@@ -248,6 +248,34 @@ function aakb_survey_profile_update_submit(&$form, &$form_state) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add setting for consent checkboxes.
+ */
+function aakb_survey_form_user_admin_settings_alter(&$form, &$form_state, $form_id) {
+  $form['aakb_survey_profile'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Aakb survey settings'),
+    '#description' => t('Help text on the user profile page.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => -10,
+  );
+
+  $default = variable_get('aakb_survey_profile', array());
+  $types = _aakb_survey_consent_types();
+  foreach ($types as $type => $info) {
+    $form['aakb_survey_profile'][$type] = array(
+      '#type' => 'textfield',
+      '#title' => t($info['title']),
+      '#description' => t($info['description']),
+      '#default_value' => isset($default[$type]) ? $default[$type] : '',
+      '#required' => TRUE,
+    );
+  }
+}
+
+/**
  * Get statistic about a consent type.
  *
  * @param int $type
