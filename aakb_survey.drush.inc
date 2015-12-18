@@ -20,6 +20,20 @@ function aakb_survey_drush_command() {
       'callback' => 'drush_aakb_survey_import',
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
     ),
+    'aakb-survey-mail-send' => array(
+      'description' => "Send queued emails.",
+      'options' => array(
+        'items' => array(
+          'description' => 'The number of mails to send each minute.',
+          'example-value' => 30,
+          'value' => 'required',
+        ),
+      ),
+      'aliases' => array('aakb-ssm'),
+      'drupal dependencies' => array(
+        'queue_mail',
+      ),
+    ),
   );
 }
 
@@ -82,4 +96,51 @@ function drush_aakb_survey_import($file = 'mails.csv', $delimiter = ',') {
       echo $id . ' -> ' . $mail . "\n";
     }
   }
+}
+
+/**
+ * Send mails based on currently queued mails.
+ */
+function drush_aakb_survey_mail_send() {
+  $sent_mails_count = 0;
+
+  // Prevent session information from being saved while queue is running.
+  drupal_save_session(FALSE);
+
+  // Force the current user to anonymous to ensure consistent permissions on
+  // queue runs.
+  $original_user = $GLOBALS['user'];
+  $GLOBALS['user'] = drupal_anonymous_user();
+
+  // Grab the defined cron queues.
+  $queues = module_invoke_all('cron_queue_info');
+  drupal_alter('cron_queue_info', $queues);
+
+  // And fetch and process our queue.
+  $queue_name = QUEUE_MAIL_QUEUE_NAME;
+  if (isset($queues[$queue_name])) {
+    $info = $queues[$queue_name];
+    $function = $info['worker callback'];
+    $items = drush_get_option('items', 0);
+
+    // Calculate sleep time.
+    $interval = round(60 / $items);
+
+    $queue = _queue_mail_get_queue();
+    while ($item = $queue->claimItem()) {
+      $function($item->data);
+      $queue->deleteItem($item);
+      echo '.';
+      sleep($interval);
+      $sent_mails_count++;
+    }
+  }
+
+  echo "\n";
+
+  // Restore the user.
+  $GLOBALS['user'] = $original_user;
+  drupal_save_session(TRUE);
+
+  drush_log(dt('Processed @count queued items.', array('@count' => $sent_mails_count)), 'ok');
 }
