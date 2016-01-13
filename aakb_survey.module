@@ -218,11 +218,24 @@ function aakb_survey_send_invitation() {
  *
  * Hook into the save profile form to update the mail address in the survey
  * table.
+ *
+ * Add option to opt-in/out of consent campaings.
  */
 function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
   global $user;
   if (ding_user_is_provider_user($user)) {
     $form['#submit'][] = 'aakb_survey_profile_update_submit';
+
+    $types = _aakb_survey_consent_types();
+    foreach ($types as $type => $info) {
+      $form['aakb_survey_profile'][$type] = array(
+        '#type' => 'textfield',
+        '#title' => t($info['title']),
+        '#description' => t($info['description']),
+        '#default_value' => isset($default[$type]) ? $default[$type] : '',
+        '#required' => TRUE,
+      );
+    }
   }
 }
 
