@@ -6,7 +6,10 @@ core = 7.x
 projects[views_data_export][subdir] = "contrib"
 projects[views_data_export][version] = "3.0-beta9"
 
-projects[ding_ting_frontend][type] = "module"
-projects[ding_ting_frontend][download][type] = "git"
-projects[ding_ting_frontend][download][url] = "git@github.com:aakbcms/aakb_survey_viewa.git"
-projects[ding_ting_frontend][download][branch] = "master"
+projects[queue_mail][subdir] = "contrib"
+projects[queue_mail][version] = "1.4"
+
+projects[aakb_survey_views][type] = "module"
+projects[aakb_survey_views][download][type] = "git"
+projects[aakb_survey_views][download][url] = "git@github.com:aakbcms/aakb_survey_views.git"
+projects[aakb_survey_views][download][branch] = "develop"
