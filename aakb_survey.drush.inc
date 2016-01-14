@@ -102,6 +102,12 @@ function drush_aakb_survey_import($file = 'mails.csv', $delimiter = ',') {
  * Send mails based on currently queued mails.
  */
 function drush_aakb_survey_mail_send() {
+  $items = drush_get_option('items', 0);
+  if ($items == 0) {
+    drush_set_error('AAKB_SURVER_NO_ITEMS_OPTION', dt('You need to set the "items" parameter.', array()));
+    return;
+  }
+
   $sent_mails_count = 0;
 
   // Prevent session information from being saved while queue is running.
@@ -121,7 +127,6 @@ function drush_aakb_survey_mail_send() {
   if (isset($queues[$queue_name])) {
     $info = $queues[$queue_name];
     $function = $info['worker callback'];
-    $items = drush_get_option('items', 0);
 
     // Calculate sleep time.
     $interval = round(60 / $items);

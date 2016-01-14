@@ -6,6 +6,7 @@
 ?>
 <h3>Send invitation mail's</h3>
 <p>Users that have not be notified: <strong><?php print $users; ?></strong></p>
+<p>Mails in notification queue: <strong><?php print $queued; ?></strong></p>
 <?php if ($show_send) : ?>
   <input class='js-aakb-survey-sure' type="checkbox" name="sure" value="yes"> I'am sure that i want to send mails.
   <div class="form-actions form-wrapper" id="edit-actions">

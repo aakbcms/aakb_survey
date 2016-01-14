@@ -149,6 +149,7 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
     'aakb_survey_send' => array(
       'variables' => array(
         'users' => 0,
+        'queued' => 0,
         'show_send' => FALSE,
       ),
       'template' => 'templates/aakb-survey-send',
@@ -210,7 +211,9 @@ function aakb_survey_send_invitation() {
     ), $config['reply']);
   }
 
-  drupal_json_output(array('test' => 'test1'));
+  // Prevent more than one send.
+  variable_set('aakb_survey_mails_queued', TRUE);
+  drupal_json_output(array('queued' => TRUE));
 }
 
 /**

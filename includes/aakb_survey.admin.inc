@@ -143,7 +143,8 @@ function aakb_survey_admins_send() {
   return array(
     '#theme' => 'aakb_survey_send',
     '#users' =>  _aakb_survey_not_notified_users(),
-    '#show_send' => variable_get('aakb_survey_mails_sent', TRUE),
+    '#queued' => _queue_mail_get_queue()->numberOfItems(),
+    '#show_send' => !variable_get('aakb_survey_mails_queued', FALSE),
     '#attached' => array(
       'js' => array(
         drupal_get_path('module', 'aakb_survey') . '/js/aakb_survey.admin.js',

@@ -19,9 +19,11 @@
 
     send_btn.click(function() {
       if (send_btn.hasClass('form-button-enabled')) {
+        send_btn.toggleClass('form-button-disabled');
+        send_btn.toggleClass('form-button-enabled');
         $.getJSON( "/admin/config/people/survey/send/now", function(data) {
-          console.log(data);
-        });
+          location.reload();
+        })
       }
     });
   });
