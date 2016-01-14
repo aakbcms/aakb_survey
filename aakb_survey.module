@@ -226,21 +226,42 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
   if (ding_user_is_provider_user($user)) {
     $form['#submit'][] = 'aakb_survey_profile_update_submit';
 
+    $form['aakb_survey_profile'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Participation in surveys'),
+      '#description' => t('Handle your participation to different surveys.'),
+      '#tree' => TRUE,
+    );
+
+    // Load user consents
+    $consents = db_select('aakb_survey', 'aas')
+      ->fields('aas', array('consent'))
+      ->condition('uid', $user->uid, '=')
+      ->execute()
+      ->fetchField();
+
     $types = _aakb_survey_consent_types();
+    $options = array();
+    $defaults = array();
     foreach ($types as $type => $info) {
-      $form['aakb_survey_profile'][$type] = array(
-        '#type' => 'textfield',
-        '#title' => t($info['title']),
-        '#description' => t($info['description']),
-        '#default_value' => isset($default[$type]) ? $default[$type] : '',
-        '#required' => TRUE,
-      );
+      $options[$type] = $info['title'];
+      if ($consents & $type) {
+        $defaults[$type] = $type;
+      }
     }
+
+    $form['aakb_survey_profile']['selections'] = array(
+      '#type' => 'checkboxes',
+      '#options' => $options,
+      '#default_value' => $defaults,
+    );
   }
 }
 
 /**
  * Implements submit handler.
+ *
+ * @TODO: Handle non-existing users in aakb_survey table.
  *
  * Update the survey mail address.
  */
@@ -252,12 +273,48 @@ function aakb_survey_profile_update_submit(&$form, &$form_state) {
   $type = explode('_', $profile->type);
   $type = array_pop($type);
 
-  db_update('aakb_survey')
-    ->fields(array(
-      'mail' => $profile->{'field_' . $type . '_mail'}[LANGUAGE_NONE][0]['email'],
-    ))
+  // Get mail.
+  $mail = $profile->{'field_' . $type . '_mail'}[LANGUAGE_NONE][0]['email'];
+
+  // Check if user exists in the survey table.
+  $hash = db_select('aakb_survey', 'aas')
+    ->fields('aas', array('hash'))
     ->condition('uid', $uid, '=')
-    ->execute();
+    ->execute()
+    ->fetchField();
+
+  // Reduce the consent selections to a bitmap.
+  $consent = 0;
+  if (!empty($form_state['values']['aakb_survey_profile']['selections'])) {
+    $consents = array_values($form_state['values']['aakb_survey_profile']['selections']);
+    $consent = array_reduce($consents, function ($carry, $item) {
+      return $carry | $item;
+    }, 0);
+  }
+
+  if ($hash) {
+    db_update('aakb_survey')
+      ->fields(array(
+        'mail' => $mail,
+        'consent' => $consent,
+      ))
+      ->condition('uid', $uid, '=')
+      ->execute();
+  }
+  else {
+    db_insert('aakb_survey')
+      ->fields(array(
+        'uid' => $uid,
+        'mail' => $mail,
+        // Randomness is added to hash to ensure that no body can guess it
+        // from knowing another users mail address.
+        'hash' => sha1($mail . rand()),
+        'notified' => 1,
+        'notified_time' => time(),
+        'consent' => $consent,
+      ))
+      ->execute();
+  }
 }
 
 /**
@@ -301,13 +358,14 @@ function _aakb_survey_stats($type = AAKB_SURVEY_USER_SATISFACTION) {
 }
 
 /**
- * Count the number of not notified users in the database.
+ * Get not notified users in the database.
  *
  * @param bool $count
  *   Should the count be returned. Default to TRUE.
  *
- * @return int
- *   The number of users.
+ * @return mixed
+ *   Array with user id, mail and hash value. If the $count is TRUE the number
+ *   of users is returned.
  */
 function _aakb_survey_not_notified_users($count = TRUE) {
   $query = db_select('aakb_survey', 's')
