@@ -55,9 +55,23 @@ function drush_aakb_survey_import($file = 'mails.csv', $delimiter = ',') {
       // Check if this mail have a count of only one (unique mail in the
       // import).
       if ($data[1] == 1) {
-        // Try to load the Drupal user.
-        if ($user = user_load_by_mail($data[0])) {
-          $uid = $user->uid;
+        // Try to load the Drupal user. This is a multi load as some employees
+        // have used there mail address as both provider and editor. So we try
+        // to find provider user.
+        $users = user_load_multiple(array(), array('mail' => $data[0]));
+        foreach ($users as $user) {
+          // Figure out if the user is provider user. ding_is_provider_user can
+          // not be used as it has static cache.
+          $names = db_select('authmap')
+            ->fields('authmap', array('authname'))
+            ->condition('module', 'ding_user')
+            ->condition('uid', $user->uid)
+            ->execute()->fetchAll();
+
+          if (!empty($names)) {
+            $uid = $user->uid;
+            break;
+          }
         }
       }
 
