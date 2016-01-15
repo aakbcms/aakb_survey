@@ -403,18 +403,21 @@ function _aakb_survey_get_user_consent($hash) {
 /**
  * Define the different consent types.
  *
+ * @TODO: Change the danish string into english. They are hacked her do to time
+ *        issues within the project.
+ *
  * @return array
  *   The bitmap key as index and assoc. array with information.
  */
 function _aakb_survey_consent_types() {
   return array(
     AAKB_SURVEY_USER_SATISFACTION => array(
-      'title' => t('User satisfaction consent'),
-      'description' => t('Yearly user satisfaction survey from the library.'),
+      'title' => 'Tilfredshedsundersøgelse',
+      'description' => 'Ja tak, jeg vil gerne inviteres til at deltage i en årlig digital spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker.',
     ),
     AAKB_SURVEY_NEWSLETTER => array(
-      'title' => t('User newsletter consent'),
-      'description' => t('Newsletters and survey from the municipality.'),
+      'title' => 'Nyheder',
+      'description' => 'Ja tak, jeg vil gerne modtage nyheder m.m. fra Aarhus Kommune.',
     ),
   );
 }

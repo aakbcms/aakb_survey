@@ -104,7 +104,7 @@ function _aakb_survey_consent_form($form, $form_state, $hash) {
   drupal_add_library('system', 'drupal.ajax');
   $form['actions']['submit'] = array(
     '#theme' => 'link',
-    '#text' => t('Yes, submit my selections'),
+    '#text' => t('Send'),
     '#path' => 'survey/' . $hash . '/consent/ajax',
     '#options' => array(
       'attributes' => array(
