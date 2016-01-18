@@ -6,14 +6,3 @@
   background-color: #1E1E1E;
   background-image: none;
 }
-
-.aakb-survey-consent-form #edit-cancel:visited,
-.aakb-survey-consent-form #edit-cancel:link {
-  color: #1E1E1E;
-  background-color: #FFF;
-  background-image: none;
-}
-
-.aakb-survey-consent-form #edit-cancel:hover {
-  text-decoration: underline;
-}
