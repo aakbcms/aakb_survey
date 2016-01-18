@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- *
+ * Build the database scheme need and cleans up the database on uninstall.
  */
 
 /**
@@ -27,7 +27,8 @@ function aakb_survey_schema() {
         ),
         'mail' => array(
           'description' => 'Mail address for the user',
-          'type' => 'text',
+          'type' => 'varchar',
+          'length' => 255,
           'not null' => TRUE,
         ),
         'info' => array(
@@ -37,8 +38,10 @@ function aakb_survey_schema() {
         ),
         'hash' => array(
           'description' => 'Unique hash value that links to this user',
-          'type' => 'text',
+          'type' => 'varchar',
+          'length' => 128,
           'not null' => TRUE,
+          'default' => '',
         ),
         'notified' => array(
           'description' => 'Identifies if the user have been sent initial mail',
@@ -55,14 +58,35 @@ function aakb_survey_schema() {
         'consent' => array(
           'description' => 'Bitmap used to flags which consents have the store',
           'type' => 'int',
-          'default' => 0,
+          'default' => 1,
         ),
       ),
       'indexes' => array(
         'uid' => array('uid'),
         'hash' => array('hash'),
       ),
-      'primary key' => array('id'),
+      'primary key' => array('id', 'mail'),
     ),
   );
+}
+
+/**
+ * Implements hook_install().
+ */
+function aakb_survey_install() {
+  // Set a default configuration for queue mail module.
+  variable_set('queue_mail_keys', 'aakb_survey_invitation');
+  variable_set('queue_mail_queue_time', 5);
+
+  // Set queue mail not to run on cron.
+  variable_set('queue_mail_send_on_cron', 0);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function aakb_survey_uninstall() {
+  variable_del('aakb_survey_template');
+  variable_del('aakb_survey_landing_page');
+  variable_del('aakb_survey_profile');
 }

@@ -1,8 +1,13 @@
 <?php
 /**
  * @file
- *
+ * Information about the hooks and internal functions need by the module.
  */
+
+// Defines the consent bitmap
+define('AAKB_SURVEY_NO_CONSENT', 1);
+define('AAKB_SURVEY_USER_SATISFACTION', 2);
+define('AAKB_SURVEY_NEWSLETTER', 4);
 
 /**
  * Implements hook_permission().
@@ -13,6 +18,10 @@ function aakb_survey_permission() {
       'title' => t('Administer Aakb survey'),
       'description' => t('Perform administration tasks.'),
     ),
+    'export aakb survey' => array(
+      'title' => t('Export Aakb survey'),
+      'description' => t('Export data from collected consent.'),
+    ),
   );
 }
 
@@ -22,57 +31,412 @@ function aakb_survey_permission() {
 function aakb_survey_menu() {
   $items = array();
 
+  $path = drupal_get_path('module', 'aakb_survey');
+
   $items['admin/config/people/survey'] = array(
     'title' => 'Aakb survey',
     'description' => 'Aakb survey configuration',
     'type' => MENU_NORMAL_ITEM,
-    'page callback' => 'aakb_survey_admin_status',
-    'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
-  );
-
-  $items['admin/config/people/survey/status'] = array(
-    'title' => 'Status',
-    'description' => 'Aakb survey status',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-
-  $items['admin/config/people/survey/template'] = array(
-    'title' => 'Template',
-    'type' => MENU_LOCAL_TASK,
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_template_form'),
+    'page arguments' => array('aakb_survey_admin_form'),
     'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
+    'file' => 'aakb_survey.admin.inc',
+    'file path' => $path . '/includes',
+  );
+
+  $items['admin/config/people/survey/config'] = array(
+    'title' => 'Configuration',
+    'description' => 'Aakb survey config',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
   );
 
   $items['admin/config/people/survey/export'] = array(
     'title' => 'Export',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_export_form'),
+    'page callback' => 'aakb_survey_admin_export',
     'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
-  );
-
-  $items['admin/config/people/survey/landing'] = array(
-    'title' => 'Landing pages',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admin_landing_form'),
-    'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
+    'file' => 'aakb_survey.admin.inc',
+    'file path' => $path . '/includes',
+    'weight' => -15,
   );
 
   $items['admin/config/people/survey/send'] = array(
     'title' => 'Send',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('aakb_survey_admins_send_form'),
+    'page callback' => 'aakb_survey_admins_send',
     'access arguments' => array('administer aakb survey'),
-    'file' => 'includes/aakb_survey.admin.inc',
+    'file' => 'aakb_survey.admin.inc',
+    'file path' => $path . '/includes',
+    'weight' => -20,
+  );
+
+  $items['admin/config/people/survey/send/now'] = array(
+    'title' => 'Send',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'aakb_survey_send_invitation',
+    'access arguments' => array('administer aakb survey'),
+    'weight' => -25,
+  );
+
+  $items['survey/%/consent'] = array(
+    'title' => 'User consent',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
+  $items['survey/%/consent/ajax'] = array(
+    'title' => 'User consent ajax',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent_ajax',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'delivery callback' => 'ajax_deliver',
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
+  $items['survey/%/consent/no'] = array(
+    'title' => 'User consent',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent_no',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
+  );
+
+  $items['survey/%/consent/thanks'] = array(
+    'title' => 'User consent',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'aakb_survey_user_consent_thanks',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'file' => 'aakb_survey.pages.inc',
+    'file path' => $path . '/includes',
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function aakb_survey_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'aakb_survey') . '/includes',
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function aakb_survey_theme($existing, $type, $theme, $path) {
+  return array(
+    'aakb_survey_export' => array(
+      'variables' => array(
+        'types' => NULL,
+        'counts' => NULL,
+        'links' => NULL,
+      ),
+      'template' => 'templates/aakb-survey-export'
+    ),
+    'aakb_survey_send' => array(
+      'variables' => array(
+        'users' => 0,
+        'queued' => 0,
+        'show_send' => FALSE,
+      ),
+      'template' => 'templates/aakb-survey-send',
+    ),
+    'aakb_survey_landing_page' => array(
+      'variables' => array(
+        'login_required' => TRUE,
+        'content' => NULL,
+        'form' => array(),
+      ),
+      'template' => 'templates/aakb-survey-landing-page',
+    )
+  );
+}
+
+/**
+ * Implements hook_mail().
+ */
+function aakb_survey_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'invitation':
+      // Load mail templates.
+      $config = variable_get('aakb_survey_template', array());
+
+      // Set headers.
+      $message['headers']['Reply-To'] = $config['reply'];
+
+      // Build body.
+      $link = url('survey/' . $params['hash'] . '/consent', array(
+        'absolute' => TRUE,
+        'https' => TRUE,
+      ));
+      $link = str_replace('http://', 'https://', $link);
+      $body = $config['body'];
+      $body = str_replace("[link]", $link, $body);
+
+      // Set message.
+      $message['to'] = $params['mail'];
+      $message['subject'] = $config['title'];
+      $message['body'][] = $body;
+      break;
+  }
+}
+
+/**
+ * Send the invitation mails menu callback handler.
+ */
+function aakb_survey_send_invitation() {
+  // Load users that have not been notified.
+  $users = _aakb_survey_not_notified_users(FALSE);
+
+  $config = variable_get('aakb_survey_template', array());
+  foreach ($users as $id => $user) {
+    drupal_mail('aakb_survey', 'invitation', $user->mail, LANGUAGE_NONE, array(
+      'id' => $user->id,
+      'uid' => $user->uid,
+      'mail' => $user->mail,
+      'hash' => $user->hash,
+    ), $config['reply']);
+  }
+
+  // Prevent more than one send.
+  variable_set('aakb_survey_mails_queued', TRUE);
+  drupal_json_output(array('queued' => TRUE));
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Hook into the save profile form to update the mail address in the survey
+ * table.
+ *
+ * Add option to opt-in/out of consent campaings.
+ */
+function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
+  global $user;
+  if (ding_user_is_provider_user($user)) {
+    $form['#submit'][] = 'aakb_survey_profile_update_submit';
+
+    $form['aakb_survey_profile'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Participation in surveys'),
+      '#description' => t('Handle your participation to different surveys.'),
+      '#tree' => TRUE,
+    );
+
+    // Load user consents
+    $consents = db_select('aakb_survey', 'aas')
+      ->fields('aas', array('consent'))
+      ->condition('uid', $user->uid, '=')
+      ->execute()
+      ->fetchField();
+
+    $types = _aakb_survey_consent_types();
+    $options = array();
+    $defaults = array();
+    foreach ($types as $type => $info) {
+      $options[$type] = $info['title'];
+      if ($consents & $type) {
+        $defaults[$type] = $type;
+      }
+    }
+
+    $form['aakb_survey_profile']['selections'] = array(
+      '#type' => 'checkboxes',
+      '#options' => $options,
+      '#default_value' => $defaults,
+    );
+  }
+}
+
+/**
+ * Implements submit handler.
+ *
+ * @TODO: Handle non-existing users in aakb_survey table.
+ *
+ * Update the survey mail address.
+ */
+function aakb_survey_profile_update_submit(&$form, &$form_state) {
+  $profile = $form_state['profile2'];
+  $uid = $profile->uid;
+
+  // Find provider type.
+  $type = explode('_', $profile->type);
+  $type = array_pop($type);
+
+  // Get mail.
+  $mail = $profile->{'field_' . $type . '_mail'}[LANGUAGE_NONE][0]['email'];
+
+  // Check if user exists in the survey table.
+  $hash = db_select('aakb_survey', 'aas')
+    ->fields('aas', array('hash'))
+    ->condition('uid', $uid, '=')
+    ->execute()
+    ->fetchField();
+
+  // Reduce the consent selections to a bitmap.
+  $consent = 0;
+  if (!empty($form_state['values']['aakb_survey_profile']['selections'])) {
+    $consents = array_values($form_state['values']['aakb_survey_profile']['selections']);
+    $consent = array_reduce($consents, function ($carry, $item) {
+      return $carry | $item;
+    }, 0);
+  }
+
+  if ($hash) {
+    db_update('aakb_survey')
+      ->fields(array(
+        'mail' => $mail,
+        'consent' => $consent,
+      ))
+      ->condition('uid', $uid, '=')
+      ->execute();
+  }
+  else {
+    db_insert('aakb_survey')
+      ->fields(array(
+        'uid' => $uid,
+        'mail' => $mail,
+        // Randomness is added to hash to ensure that no body can guess it
+        // from knowing another users mail address.
+        'hash' => sha1($mail . rand()),
+        'notified' => 1,
+        'notified_time' => time(),
+        'consent' => $consent,
+      ))
+      ->execute();
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add setting for consent checkboxes.
+ */
+function aakb_survey_form_user_admin_settings_alter(&$form, &$form_state, $form_id) {
+  $form['aakb_survey_profile'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Aakb survey settings'),
+    '#description' => t('Help text on the user profile page.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => -10,
+  );
+
+  $default = variable_get('aakb_survey_profile', array());
+  $types = _aakb_survey_consent_types();
+  foreach ($types as $type => $info) {
+    $form['aakb_survey_profile'][$type] = array(
+      '#type' => 'textfield',
+      '#title' => t($info['title']),
+      '#description' => t($info['description']),
+      '#default_value' => isset($default[$type]) ? $default[$type] : '',
+      '#required' => TRUE,
+    );
+  }
+}
+
+/**
+ * Get statistic about a consent type.
+ *
+ * @param int $type
+ *   The consent type to get statistic for.
+ */
+function _aakb_survey_stats($type = AAKB_SURVEY_USER_SATISFACTION) {
+  // @TODO: Change this to use the query builder.
+  $query = db_query('SELECT count(*) FROM {aakb_survey} WHERE consent & :type', array(':type' => $type));
+  return $query->fetchField();
+}
+
+/**
+ * Get not notified users in the database.
+ *
+ * @param bool $count
+ *   Should the count be returned. Default to TRUE.
+ *
+ * @return mixed
+ *   Array with user id, mail and hash value. If the $count is TRUE the number
+ *   of users is returned.
+ */
+function _aakb_survey_not_notified_users($count = TRUE) {
+  $query = db_select('aakb_survey', 's')
+    ->fields('s', array('id', 'mail', 'hash'))
+    ->condition('notified', 0, '=');
+
+  if ($count) {
+    return $query->countQuery()->execute()->fetchField();
+  }
+  else {
+    return $query->execute()->fetchAllAssoc('id');
+  }
+}
+
+/**
+ * Get user consent information.
+ *
+ * @param $hash
+ *   The hash for the user.
+ *
+ * @return array
+ *   Consent information (basically the table row).
+ */
+function _aakb_survey_get_user_consent($hash) {
+  return db_select('aakb_survey', 's')
+    ->fields('s', array('uid', 'mail', 'info', 'notified', 'notified_time', 'consent'))
+    ->condition('hash', $hash, '=')
+    ->execute()
+    ->fetchAssoc();
+}
+
+/**
+ * Define the different consent types.
+ *
+ * @TODO: Change the danish string into english. They are hacked her do to time
+ *        issues within the project.
+ *
+ * @return array
+ *   The bitmap key as index and assoc. array with information.
+ */
+function _aakb_survey_consent_types() {
+  return array(
+    AAKB_SURVEY_USER_SATISFACTION => array(
+      'title' => 'Tilfredshedsundersøgelse',
+      'description' => 'Ja tak, jeg vil gerne inviteres til at deltage i en årlig digital spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker.',
+    ),
+    AAKB_SURVEY_NEWSLETTER => array(
+      'title' => 'Nyheder',
+      'description' => 'Ja tak, jeg vil også gerne modtage nyheder m.v. fra Aarhus Kommunes Biblioteker.',
+    ),
+  );
+}
+
+/**
+ * Mail send queue callback from drush to ensure database is updated.
+ *
+ * @param string $function
+ *   The queue mail send function to call.
+ * @param array $data
+ *   The data found in the queue mail queue.
+ */
+function _aakb_survey_send_queue_mail($function, $data) {
+  // Send mail.
+  $function($data);
+
+  // Update notification state.
+  db_update('aakb_survey')
+    ->fields(array('notified' => 1, 'notified_time' => time()))
+    ->condition('id', $data['params']['id'], '=')
+    ->execute();
 }

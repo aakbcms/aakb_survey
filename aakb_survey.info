@@ -3,3 +3,7 @@ description = Aakb survey user consent management and requests
 core = 7.x
 package = AAKB
 project = aakb_survey
+dependencies[] = ding_user
+dependencies[] = aakb_survey_views
+dependencies[] = views_data_export
+dependencies[] = queue_mail
