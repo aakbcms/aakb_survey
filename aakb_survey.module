@@ -244,20 +244,14 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
       ->fetchField();
 
     $types = _aakb_survey_consent_types();
-    $options = array();
-    $defaults = array();
     foreach ($types as $type => $info) {
-      $options[$type] = $info['title'];
-      if ($consents & $type) {
-        $defaults[$type] = $type;
-      }
+      $form['aakb_survey_profile']['selections'][$type] = array(
+        '#type' => 'checkbox',
+        '#title' => $info['title'],
+        '#description' => $info['description'],
+        '#default_value' => $consents & $type ? $type : '',
+      );
     }
-
-    $form['aakb_survey_profile']['selections'] = array(
-      '#type' => 'checkboxes',
-      '#options' => $options,
-      '#default_value' => $defaults,
-    );
   }
 }
 
