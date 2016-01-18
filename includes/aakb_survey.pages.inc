@@ -125,7 +125,7 @@ function _aakb_survey_consent_form($form, $form_state, $hash) {
     '#options' => array(
       'attributes' => array(
         'class' => array(
-          'form-cancel',
+          'form-submit',
         ),
       ),
     ),

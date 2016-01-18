@@ -417,7 +417,7 @@ function _aakb_survey_consent_types() {
     ),
     AAKB_SURVEY_NEWSLETTER => array(
       'title' => 'Nyheder',
-      'description' => 'Ja tak, jeg vil gerne modtage nyheder m.m. fra Aarhus Kommune.',
+      'description' => 'Ja tak, jeg vil også gerne modtage nyheder m.v. fra Aarhus Kommunes Biblioteker.',
     ),
   );
 }
