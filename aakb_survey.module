@@ -161,6 +161,12 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
         'form' => array(),
       ),
       'template' => 'templates/aakb-survey-landing-page',
+    ),
+    'aakb_survey_profile_page' => array(
+      'variables' => array(
+        'types' => array(),
+      ),
+      'template' => 'templates/aakb-survey-profile-page',
     )
   );
 }
@@ -232,11 +238,11 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
     $form['aakb_survey_profile'] = array(
       '#type' => 'fieldset',
       '#title' => t('Participation in surveys'),
-      '#description' => t('Handle your participation to different surveys.'),
+      '#description' => t('It is also possible to get news from the library, the annual activity program on.'),
       '#tree' => TRUE,
     );
 
-    // Load user consents
+    // Load user consents.
     $consents = db_select('aakb_survey', 'aas')
       ->fields('aas', array('consent'))
       ->condition('uid', $user->uid, '=')
