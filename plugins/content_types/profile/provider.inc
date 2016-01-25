@@ -12,7 +12,8 @@ $plugin = array(
   'title' => t('AAKB Survey consents'),
   'description' => t('Display consent selections.'),
   'single' => TRUE,
-  'render callback' => 'aakb_survey_profile_provider_type_render',
+  'edit form' => 'aakb_survey_profile_provider_edit_form',
+  'render callback' => 'aakb_survey_profile_provider_content_type_render',
   'required context' => new ctools_context_required(t('User'), 'user'),
   'category' => t('User'),
 );
@@ -20,7 +21,7 @@ $plugin = array(
 /**
  * Render callback function.
  */
-function aakb_survey_profile_provider_type_render($subtype, $conf, $panel_args, $context) {
+function aakb_survey_profile_provider_content_type_render($subtype, $conf, $panel_args, $context) {
   $block = new stdClass();
   $block->content = '';
 
@@ -41,14 +42,24 @@ function aakb_survey_profile_provider_type_render($subtype, $conf, $panel_args, 
     foreach ($types as $type => $info) {
       if ($consents & $type) {
         $data[$info['title']] = array(
-          'description' => $info['description'],
+          'description' => t('Yes', array(), array('context' => 'aakb_surver')),
+        );
+      }
+      else {
+        $data[$info['title']] = array(
+          'description' => t('No', array(), array('context' => 'aakb_surver')),
         );
       }
     }
 
     $block->content = array(
       '#theme' => 'aakb_survey_profile_page',
-      '#types' => $types,
+      '#types' => $data,
+      '#attached' => array(
+        'css' => array(
+          drupal_get_path('module', 'aakb_survey') . '/css/aakb_survey.profile.css',
+        ),
+      ),
     );
   }
 

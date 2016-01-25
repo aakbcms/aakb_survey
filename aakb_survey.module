@@ -124,6 +124,19 @@ function aakb_survey_menu() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * It simply tells panels where to find the .inc files that define various
+ * args, contexts, content_types. In this case the subdirectories of
+ * ctools_plugin_example/panels are used.
+ */
+function aakb_survey_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function aakb_survey_views_api() {
@@ -255,6 +268,7 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
         '#type' => 'checkbox',
         '#title' => $info['title'],
         '#description' => $info['description'],
+        '#return_value' => $type,
         '#default_value' => $consents & $type ? $type : '',
       );
     }
