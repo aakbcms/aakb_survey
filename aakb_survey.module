@@ -484,3 +484,47 @@ function _aakb_survey_send_queue_mail($function, $data) {
     ->condition('id', $data['params']['id'], '=')
     ->execute();
 }
+
+function aakb_survey_preprocess_views_data_export_xls_body(&$vars) {
+  _views_data_export_header_shared_preprocess($vars);
+  _views_data_export_body_shared_preprocess($vars);
+
+  $output = '';
+
+  // Construct the tbody of a table, see theme_table().
+
+  $ts = tablesort_init($vars['header']);
+
+  $flip = array(
+    'even' => 'odd',
+    'odd' => 'even',
+  );
+  $class = 'even';
+  foreach ($vars['themed_rows'] as $number => $row) {
+    $attributes = array();
+
+    $cells = $row;
+    if (count($cells)) {
+      // Add odd/even class
+      $class = $flip[$class];
+      if (isset($attributes['class'])) {
+        $attributes['class'] .= ' ' . $class;
+      }
+      else {
+        $attributes['class'] = $class;
+      }
+
+      // Build row
+      $output .= ' <tr' . drupal_attributes($attributes) . '>';
+      $i = 0;
+      foreach ($cells as $cell) {
+        $cell = tablesort_cell($cell, $vars['header'], $ts, $i++);
+        $output .= _theme_table_cell($cell);
+      }
+      $output .= " </tr>\n";
+    }
+  }
+
+
+  $vars['tbody'] = preg_replace('/<\/?(a|span) ?.*?>/', '', $output); // strip 'a' and 'span' tags
+}
