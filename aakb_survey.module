@@ -221,7 +221,7 @@ function aakb_survey_mail($key, &$message, $params) {
       $config = variable_get('aakb_survey_template', array());
 
       // Set headers.
-      $message['headers']['Reply-To'] = $config['reply'];
+      $message['headers']['Reply-To'] = $params['reply'];
 
       // Build body.
       $link = url('survey/' . $params['hash'] . '/consent', array(
@@ -254,7 +254,8 @@ function aakb_survey_send_invitation() {
       'uid' => $user->uid,
       'mail' => $user->mail,
       'hash' => $user->hash,
-    ), $config['reply']);
+      'reply' => $config['reply'],
+    ), $config['from']);
   }
 
   // Prevent more than one send.
