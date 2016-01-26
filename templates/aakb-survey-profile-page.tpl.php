@@ -5,7 +5,7 @@
  */
 ?>
 <div class="entity clearfix">
-  <h2>Få nyt fra biblioteket</h2>
+  <h2><?php print t('Participation in surveys') ?></h2>
 
   <div class="content">
     <?php foreach ($types as $title => $info) : ?>
