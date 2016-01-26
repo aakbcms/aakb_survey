@@ -279,7 +279,6 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
     $form['aakb_survey_profile'] = array(
       '#type' => 'fieldset',
       '#title' => t('Participation in surveys'),
-      '#description' => t('It is also possible to get news from the library, the annual activity program on.'),
       '#tree' => TRUE,
     );
 
