@@ -222,6 +222,7 @@ function aakb_survey_mail($key, &$message, $params) {
 
       // Set headers.
       $message['headers']['Reply-To'] = $params['reply'];
+      $message['headers']['Sender'] = $message['from'];
 
       // Build body.
       $link = url('survey/' . $params['hash'] . '/consent', array(
