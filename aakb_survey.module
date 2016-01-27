@@ -457,7 +457,7 @@ function _aakb_survey_consent_types() {
   return array(
     AAKB_SURVEY_USER_SATISFACTION => array(
       'title' => 'Tilfredshedsundersøgelse',
-      'description' => 'Ja tak, jeg vil gerne inviteres til at deltage i en årlig digital spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker.',
+      'description' => 'Ja tak, jeg vil gerne inviteres til at deltage i en årlig digital spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker. Undersøgelsen er anonym.',
     ),
     AAKB_SURVEY_NEWSLETTER => array(
       'title' => 'Nyheder',
