@@ -485,6 +485,11 @@ function _aakb_survey_send_queue_mail($function, $data) {
     ->execute();
 }
 
+/**
+ * Implements hook_preprocess_views_data_export_xls_body().
+ *
+ * Fixed error in handling of complex vs. simple fields (data).
+ */
 function aakb_survey_preprocess_views_data_export_xls_body(&$vars) {
   _views_data_export_header_shared_preprocess($vars);
   _views_data_export_body_shared_preprocess($vars);

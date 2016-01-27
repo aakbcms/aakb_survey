@@ -34,6 +34,14 @@ function aakb_survey_drush_command() {
         'queue_mail',
       ),
     ),
+    'aakb-survey-queue-mails' => array(
+      'description' => "Queue users.",
+      'options' => array(),
+      'aliases' => array('aakb-sqm'),
+      'drupal dependencies' => array(
+        'queue_mail',
+      ),
+    ),
   );
 }
 
@@ -162,4 +170,11 @@ function drush_aakb_survey_mail_send() {
   drupal_save_session(TRUE);
 
   drush_log(dt('Processed @count queued items.', array('@count' => $sent_mails_count)), 'ok');
+}
+
+/**
+ * Move not notified users into mail queue.
+ */
+function drush_aakb_survey_queue_mails() {
+  aakb_survey_send_invitation();
 }
