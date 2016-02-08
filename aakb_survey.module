@@ -456,12 +456,12 @@ function _aakb_survey_get_user_consent($hash) {
 function _aakb_survey_consent_types() {
   return array(
     AAKB_SURVEY_USER_SATISFACTION => array(
-      'title' => 'Tilfredshedsundersøgelse',
-      'description' => 'Ja tak, jeg vil gerne inviteres til at deltage i en årlig digital spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker. Undersøgelsen er anonym.',
+      'title' => t('Satisfaction survey'),
+      'description' => t('Yes, I would like to be invited to participate in an annual survey on digital library in Aarhus Public Libraries. The survey is anonymous.'),
     ),
     AAKB_SURVEY_NEWSLETTER => array(
-      'title' => 'Nyheder',
-      'description' => 'Ja tak, jeg vil også gerne modtage nyheder m.v. fra Aarhus Kommunes Biblioteker.',
+      'title' => t('News'),
+      'description' => t('Yes, I would also like to receive news etc. Aarhus Public Libraries.'),
     ),
   );
 }
