@@ -124,6 +124,19 @@ function aakb_survey_menu() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * It simply tells panels where to find the .inc files that define various
+ * args, contexts, content_types. In this case the subdirectories of
+ * ctools_plugin_example/panels are used.
+ */
+function aakb_survey_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function aakb_survey_views_api() {
@@ -161,8 +174,41 @@ function aakb_survey_theme($existing, $type, $theme, $path) {
         'form' => array(),
       ),
       'template' => 'templates/aakb-survey-landing-page',
+    ),
+    'aakb_survey_profile_page' => array(
+      'variables' => array(
+        'types' => array(),
+      ),
+      'template' => 'templates/aakb-survey-profile-page',
     )
   );
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function aakb_survey_user_delete($account) {
+  db_delete('aakb_survey')
+    ->condition('mail', $account->mail)
+    ->condition('uid', $account->uid)
+    ->execute();
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Used to change the type parameter into matching the bitmap.
+ */
+function aakb_survey_views_query_alter(&$view, &$query) {
+  if ($query != NULL && $view->name == 'survey_export') {
+    $type = $view->args[0];
+
+    $query->where[0]['conditions'][0] = array(
+      'field' => 'aakb_survey.consent',
+      'value' => $type,
+      'operator' => '&',
+    );
+  }
 }
 
 /**
@@ -175,7 +221,8 @@ function aakb_survey_mail($key, &$message, $params) {
       $config = variable_get('aakb_survey_template', array());
 
       // Set headers.
-      $message['headers']['Reply-To'] = $config['reply'];
+      $message['headers']['Reply-To'] = $params['reply'];
+      $message['headers']['Sender'] = $message['from'];
 
       // Build body.
       $link = url('survey/' . $params['hash'] . '/consent', array(
@@ -208,7 +255,8 @@ function aakb_survey_send_invitation() {
       'uid' => $user->uid,
       'mail' => $user->mail,
       'hash' => $user->hash,
-    ), $config['reply']);
+      'reply' => $config['reply'],
+    ), $config['from']);
   }
 
   // Prevent more than one send.
@@ -232,11 +280,10 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
     $form['aakb_survey_profile'] = array(
       '#type' => 'fieldset',
       '#title' => t('Participation in surveys'),
-      '#description' => t('Handle your participation to different surveys.'),
       '#tree' => TRUE,
     );
 
-    // Load user consents
+    // Load user consents.
     $consents = db_select('aakb_survey', 'aas')
       ->fields('aas', array('consent'))
       ->condition('uid', $user->uid, '=')
@@ -244,20 +291,15 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
       ->fetchField();
 
     $types = _aakb_survey_consent_types();
-    $options = array();
-    $defaults = array();
     foreach ($types as $type => $info) {
-      $options[$type] = $info['title'];
-      if ($consents & $type) {
-        $defaults[$type] = $type;
-      }
+      $form['aakb_survey_profile']['selections'][$type] = array(
+        '#type' => 'checkbox',
+        '#title' => $info['title'],
+        '#description' => $info['description'],
+        '#return_value' => $type,
+        '#default_value' => $consents & $type ? $type : '',
+      );
     }
-
-    $form['aakb_survey_profile']['selections'] = array(
-      '#type' => 'checkboxes',
-      '#options' => $options,
-      '#default_value' => $defaults,
-    );
   }
 }
 
@@ -355,8 +397,10 @@ function aakb_survey_form_user_admin_settings_alter(&$form, &$form_state, $form_
  *   The consent type to get statistic for.
  */
 function _aakb_survey_stats($type = AAKB_SURVEY_USER_SATISFACTION) {
-  // @TODO: Change this to use the query builder.
-  $query = db_query('SELECT count(*) FROM {aakb_survey} WHERE consent & :type', array(':type' => $type));
+  $query = db_query('SELECT count(*)
+    FROM {users}
+    LEFT JOIN aakb_survey aakb_survey ON users.uid = aakb_survey.uid
+    WHERE consent & :type', array(':type' => $type));
   return $query->fetchField();
 }
 
@@ -412,12 +456,12 @@ function _aakb_survey_get_user_consent($hash) {
 function _aakb_survey_consent_types() {
   return array(
     AAKB_SURVEY_USER_SATISFACTION => array(
-      'title' => 'Tilfredshedsundersøgelse',
-      'description' => 'Ja tak, jeg vil gerne inviteres til at deltage i en årlig digital spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker.',
+      'title' => t('Satisfaction survey'),
+      'description' => t('Yes, I would like to be invited to participate in an annual survey on digital library in Aarhus Public Libraries. The survey is anonymous.'),
     ),
     AAKB_SURVEY_NEWSLETTER => array(
-      'title' => 'Nyheder',
-      'description' => 'Ja tak, jeg vil også gerne modtage nyheder m.v. fra Aarhus Kommunes Biblioteker.',
+      'title' => t('News'),
+      'description' => t('Yes, I would also like to receive news etc. Aarhus Public Libraries.'),
     ),
   );
 }
@@ -439,4 +483,53 @@ function _aakb_survey_send_queue_mail($function, $data) {
     ->fields(array('notified' => 1, 'notified_time' => time()))
     ->condition('id', $data['params']['id'], '=')
     ->execute();
+}
+
+/**
+ * Implements hook_preprocess_views_data_export_xls_body().
+ *
+ * Fixed error in handling of complex vs. simple fields (data).
+ */
+function aakb_survey_preprocess_views_data_export_xls_body(&$vars) {
+  _views_data_export_header_shared_preprocess($vars);
+  _views_data_export_body_shared_preprocess($vars);
+
+  $output = '';
+
+  // Construct the tbody of a table, see theme_table().
+
+  $ts = tablesort_init($vars['header']);
+
+  $flip = array(
+    'even' => 'odd',
+    'odd' => 'even',
+  );
+  $class = 'even';
+  foreach ($vars['themed_rows'] as $number => $row) {
+    $attributes = array();
+
+    $cells = $row;
+    if (count($cells)) {
+      // Add odd/even class
+      $class = $flip[$class];
+      if (isset($attributes['class'])) {
+        $attributes['class'] .= ' ' . $class;
+      }
+      else {
+        $attributes['class'] = $class;
+      }
+
+      // Build row
+      $output .= ' <tr' . drupal_attributes($attributes) . '>';
+      $i = 0;
+      foreach ($cells as $cell) {
+        $cell = tablesort_cell($cell, $vars['header'], $ts, $i++);
+        $output .= _theme_table_cell($cell);
+      }
+      $output .= " </tr>\n";
+    }
+  }
+
+
+  $vars['tbody'] = preg_replace('/<\/?(a|span) ?.*?>/', '', $output); // strip 'a' and 'span' tags
 }

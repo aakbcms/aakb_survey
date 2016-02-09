@@ -41,6 +41,14 @@ function aakb_survey_admin_form() {
     '#required' => TRUE,
   );
 
+  $form['aakb_survey_template']['from'] = array(
+    '#type' => 'textfield',
+    '#title' => t('From mail address'),
+    '#description' => t('The mail address that is show as from to in the mail'),
+    '#default_value' => isset($default['from']) ? $default['from'] : '',
+    '#required' => TRUE,
+  );
+
   $form['aakb_survey_template']['reply'] = array(
     '#type' => 'textfield',
     '#title' => t('Reply mail address'),
