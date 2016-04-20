@@ -321,44 +321,47 @@ function aakb_survey_profile_update_submit(&$form, &$form_state) {
   // Get mail.
   $mail = $profile->{'field_' . $type . '_mail'}[LANGUAGE_NONE][0]['email'];
 
-  // Check if user exists in the survey table.
-  $hash = db_select('aakb_survey', 'aas')
-    ->fields('aas', array('hash'))
-    ->condition('uid', $uid, '=')
-    ->execute()
-    ->fetchField();
-
-  // Reduce the consent selections to a bitmap.
-  $consent = 0;
-  if (!empty($form_state['values']['aakb_survey_profile']['selections'])) {
-    $consents = array_values($form_state['values']['aakb_survey_profile']['selections']);
-    $consent = array_reduce($consents, function ($carry, $item) {
-      return $carry | $item;
-    }, 0);
-  }
-
-  if ($hash) {
-    db_update('aakb_survey')
-      ->fields(array(
-        'mail' => $mail,
-        'consent' => $consent,
-      ))
+  // Only try to update consent if mail is not empty.
+  if (!empty($mail)) {
+    // Check if user exists in the survey table.
+    $hash = db_select('aakb_survey', 'aas')
+      ->fields('aas', array('hash'))
       ->condition('uid', $uid, '=')
-      ->execute();
-  }
-  else {
-    db_insert('aakb_survey')
-      ->fields(array(
-        'uid' => $uid,
-        'mail' => $mail,
-        // Randomness is added to hash to ensure that no body can guess it
-        // from knowing another users mail address.
-        'hash' => sha1($mail . rand()),
-        'notified' => 1,
-        'notified_time' => time(),
-        'consent' => $consent,
-      ))
-      ->execute();
+      ->execute()
+      ->fetchField();
+
+    // Reduce the consent selections to a bitmap.
+    $consent = 0;
+    if (!empty($form_state['values']['aakb_survey_profile']['selections'])) {
+      $consents = array_values($form_state['values']['aakb_survey_profile']['selections']);
+      $consent = array_reduce($consents, function ($carry, $item) {
+        return $carry | $item;
+      }, 0);
+    }
+
+    if ($hash) {
+      db_update('aakb_survey')
+        ->fields(array(
+          'mail' => $mail,
+          'consent' => $consent,
+        ))
+        ->condition('uid', $uid, '=')
+        ->execute();
+    }
+    else {
+      db_insert('aakb_survey')
+        ->fields(array(
+          'uid' => $uid,
+          'mail' => $mail,
+          // Randomness is added to hash to ensure that no body can guess it
+          // from knowing another users mail address.
+          'hash' => sha1($mail . rand()),
+          'notified' => 1,
+          'notified_time' => time(),
+          'consent' => $consent,
+        ))
+        ->execute();
+    }
   }
 }
 
