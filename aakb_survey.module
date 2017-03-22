@@ -319,7 +319,8 @@ function aakb_survey_profile_update_submit(&$form, &$form_state) {
   $type = array_pop($type);
 
   // Get mail.
-  $mail = $profile->{'field_' . $type . '_mail'}[LANGUAGE_NONE][0]['email'];
+  $mail = $profile->{'field_' . $type . '_mail'}[LANGUAGE_NONE][0];
+  $mail = array_pop($mail);
 
   // Only try to update consent if mail is not empty.
   if (!empty($mail)) {
