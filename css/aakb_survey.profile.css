@@ -19,3 +19,9 @@
 .pane-provider .field-label {
   min-width: 210px;
 }
+
+#edit-aakb-survey-profile .form-item.form-type-checkbox {
+  width: 100%;
+  max-width: 100%;
+  color: #464646;
+}

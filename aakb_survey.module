@@ -281,6 +281,7 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
       '#type' => 'fieldset',
       '#title' => t('Participation in surveys'),
       '#tree' => TRUE,
+      '#suffix' => 'Det samtykke du har givet, kan til en hver tid trækkes tilbage, dog uden at ændre på lovligheden af den behandling, der allerede måtte være foretaget. Du kan tilbagetrække et afgivet samtykke ved at henvende dig skriftligt til <a href="mailto:post@aakb.dk">post@aakb.dk</a> eller slette dit samtykke via denne side.'
     );
 
     // Load user consents.
@@ -293,11 +294,17 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
     $types = _aakb_survey_consent_types();
     foreach ($types as $type => $info) {
       $form['aakb_survey_profile']['selections'][$type] = array(
+        '#prefix' => $info['prefix'],
         '#type' => 'checkbox',
         '#title' => $info['title'],
         '#description' => $info['description'],
         '#return_value' => $type,
         '#default_value' => $consents & $type ? $type : '',
+        '#attached' => array(
+          'css' => array(
+            drupal_get_path('module', 'aakb_survey') . '/css/aakb_survey.profile.css',
+          ),
+        ),
       );
     }
   }
@@ -460,12 +467,14 @@ function _aakb_survey_get_user_consent($hash) {
 function _aakb_survey_consent_types() {
   return array(
     AAKB_SURVEY_USER_SATISFACTION => array(
-      'title' => t('Satisfaction survey'),
-      'description' => t('Yes, I would like to be invited to participate in an annual survey on digital library in Aarhus Public Libraries. The survey is anonymous.'),
+      'prefix' => '<b>Samtykkeerklæring vedr. tilfredshedsundersøgelse</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med sin årlige tilfredshedsundersøgelse at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
+      'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse, og via den kontakte mig årligt til en anonym spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
+      'description' => '',
     ),
     AAKB_SURVEY_NEWSLETTER => array(
-      'title' => t('News'),
-      'description' => t('Yes, I would also like to receive news etc. Aarhus Public Libraries.'),
+      'prefix' => '<b>Samtykkeerklæring vedr. nyheder om materialer</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med udsendelse af nyhedsmail omkring nyindkøbte materialer at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
+      'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse og interesseområder, samt løbende udsende nyhedsmail til mig omkring indkøbte materialer i Aarhus Kommunes Biblioteker. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
+      'description' => '',
     ),
   );
 }
