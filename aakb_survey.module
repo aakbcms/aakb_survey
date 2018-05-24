@@ -279,9 +279,8 @@ function aakb_survey_form_profile2_form_alter(&$form, &$form_state) {
 
     $form['aakb_survey_profile'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Participation in surveys'),
       '#tree' => TRUE,
-      '#suffix' => 'Det samtykke du har givet, kan til en hver tid trækkes tilbage, dog uden at ændre på lovligheden af den behandling, der allerede måtte være foretaget. Du kan tilbagetrække et afgivet samtykke ved at henvende dig skriftligt til <a href="mailto:post@aakb.dk">post@aakb.dk</a> eller slette dit samtykke via denne side.'
+      '#suffix' => 'Den dataansvarlige er Aarhus Kommune, Borgerservice- og Biblioteker, Aarhus Kommunes Biblioteker, Hack Kampmanns Plads 2, 8000 Aarhus C, som kan kontaktes på telefon 8940 9200 eller <a href="mailto:borgerserviceogbiblioteker@aarhus.dk">borgerserviceogbiblioteker@aarhus.dk</a>. <br /><br /> Det samtykke du har givet, kan til en hver tid trækkes tilbage, dog uden at ændre på lovligheden af den behandling, der allerede måtte være foretaget. Du kan tilbagetrække et afgivet samtykke ved at henvende dig skriftligt til <a href="mailto:post@aakb.dk">post@aakb.dk</a> eller slette dit samtykke via denne side.<br /><br />'
     );
 
     // Load user consents.
@@ -467,13 +466,13 @@ function _aakb_survey_get_user_consent($hash) {
 function _aakb_survey_consent_types() {
   return array(
     AAKB_SURVEY_USER_SATISFACTION => array(
-      'prefix' => '<b>Samtykkeerklæring vedr. tilfredshedsundersøgelse</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med sin årlige tilfredshedsundersøgelse at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
+      'prefix' => '<h3>Tilmelding til tilfredshedsundersøgelse</h3><b>Samtykkeerklæring vedr. tilfredshedsundersøgelse</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med sin årlige tilfredshedsundersøgelse at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
       'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse, og via den kontakte mig årligt til en anonym spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
       'description' => '',
     ),
     AAKB_SURVEY_NEWSLETTER => array(
-      'prefix' => '<b>Samtykkeerklæring vedr. nyheder om materialer</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med udsendelse af nyhedsmail omkring nyindkøbte materialer at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
-      'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse og interesseområder, samt løbende udsende nyhedsmail til mig omkring indkøbte materialer i Aarhus Kommunes Biblioteker. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
+      'prefix' => '<br/><br/><h3>Tilmelding til nyheder</h3><b>Samtykkeerklæring vedr. nyheder</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med udsendelse af nyhedsmail at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
+      'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse, samt løbende udsende nyhedsmail til mig. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
       'description' => '',
     ),
   );
