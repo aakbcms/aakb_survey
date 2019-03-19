@@ -11,5 +11,5 @@ projects[queue_mail][version] = "1.4"
 
 projects[aakb_survey_views][type] = "module"
 projects[aakb_survey_views][download][type] = "git"
-projects[aakb_survey_views][download][url] = "git@github.com:aakbcms/aakb_survey_views.git"
+projects[aakb_survey_views][download][url] = "https://github.com/aakbcms/aakb_survey_views.git"
 projects[aakb_survey_views][download][branch] = "develop"
