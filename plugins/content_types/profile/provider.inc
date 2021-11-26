@@ -35,8 +35,6 @@ function aakb_survey_profile_provider_content_type_render($subtype, $conf, $pane
       ->execute()
       ->fetchField();
 
-
-
     $types = _aakb_survey_consent_types();
     $data = array();
     foreach ($types as $type => $info) {

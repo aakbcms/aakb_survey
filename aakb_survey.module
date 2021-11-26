@@ -470,11 +470,11 @@ function _aakb_survey_consent_types() {
       'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse, og via den kontakte mig årligt til en anonym spørgeskemaundersøgelse om bibliotekstilbud i Aarhus Kommunes Biblioteker. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
       'description' => '',
     ),
-    AAKB_SURVEY_NEWSLETTER => array(
-      'prefix' => '<br/><br/><h3>Tilmelding til nyheder</h3><b>Samtykkeerklæring vedr. nyheder</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med udsendelse af nyhedsmail at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
-      'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse, samt løbende udsende nyhedsmail til mig. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
-      'description' => '',
-    ),
+//    AAKB_SURVEY_NEWSLETTER => array(
+//      'prefix' => '<br/><br/><h3>Tilmelding til nyheder</h3><b>Samtykkeerklæring vedr. nyheder</b><p>Aarhus Kommunes Biblioteker ønsker i forbindelse med udsendelse af nyhedsmail at indhente dit samtykke til, at vi behandler personoplysninger om dig.<br /><br />Du bedes sætte kryds i nedenstående, hvis du giver samtykke til den beskrevne handling. Hvis du ikke sætter kryds, vil vi ikke bruge personoplysningerne til det beskrevne.</p>',
+//      'title' => 'Ja tak. Aarhus Kommunes Biblioteker må gemme min e-mailadresse, samt løbende udsende nyhedsmail til mig. Ved afkrydsning herover og klik på accept, giver jeg samtykke til, at Aarhus Kommunes Biblioteker må behandle mine personoplysninger som beskrevet herover.',
+//      'description' => '',
+//    ),
   );
 }
 
